@@ -21,6 +21,7 @@ public class Spaceship extends AbstractBaseEntity {
         super(idUnique++, name);
         this.capacityByRole = capacityByRole;
         this.flightDistance = flightDistance;
+        this.isReadyForNextMission = true;
     }
 
     public Map<Role, Short> getCapacityByRole() {

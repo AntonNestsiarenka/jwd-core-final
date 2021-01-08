@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration status="WARN" strict="true">
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{dd.MM.yyyy HH:mm:ss} [%t] %-5p %c - %m%n"/>
+        </Console>
+        <RollingFile
+                name="RollingFile"
+                fileName="logs/app.log"
+                filePattern="logs/app.%i.log"
+                ignoreExceptions="false">
+            <PatternLayout>
+                <Pattern>%d{dd.MM.yyyy HH:mm:ss} [%t] %-5p %c - %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.epam.jwd.core_final" level="info" additivity="true">
+            <AppenderRef ref="RollingFile"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="ConsoleAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -17,6 +17,10 @@ public final class PropertyReaderUtil {
     private PropertyReaderUtil() {
     }
 
+    public static Properties getProperties() {
+        return properties;
+    }
+
     /**
      * try-with-resource using FileInputStream
      *
@@ -27,11 +31,11 @@ public final class PropertyReaderUtil {
      */
     public static void loadProperties() {
         final String propertiesFileName = "src/main/resources/application.properties";
-        try(InputStream inputStream = new FileInputStream(propertiesFileName)) {
+        try (InputStream inputStream = new FileInputStream(propertiesFileName)) {
             StringBuilder text = new StringBuilder();
             int i = -1;
             while ((i = inputStream.read()) != -1) {
-                text.append((char)i);
+                text.append((char) i);
             }
             Pattern pattern = Pattern.compile("^(?=(.|\n|\r)*inputRootDir=([\\w\\d-]+))" +
                     "(?=(.|\n|\r)*outputRootDir=([\\w\\d-]+))" +
@@ -41,7 +45,7 @@ public final class PropertyReaderUtil {
                     "(?=(.|\n|\r)*fileRefreshRate=(\\d+))" +
                     "(?=(.|\n|\r)*dateTimeFormat=([a-zA-Z:\\-\\s]+))" +
                     "[a-zA-Z\\d]+=.+(\r?\n(\r?\n)*[a-zA-Z\\d]+=.+)*$");
-            Matcher matcher = pattern.matcher(text.toString());
+            Matcher matcher = pattern.matcher(text);
             if (matcher.find()) {
                 ApplicationProperties applicationProperties = new ApplicationProperties(matcher.group(2),
                         matcher.group(4), matcher.group(6), matcher.group(8), matcher.group(10),
@@ -49,7 +53,8 @@ public final class PropertyReaderUtil {
                 properties.put("appProperties", applicationProperties);
             }
             else {
-                throw new ApplicationPropertiesException("Cannot parse application.properties file");
+                throw new ApplicationPropertiesException("Cannot parse application.properties file." +
+                        " Some variables are missing or incorrect format for setting variables.");
             }
         }
         catch (IOException | IllegalArgumentException e) {
