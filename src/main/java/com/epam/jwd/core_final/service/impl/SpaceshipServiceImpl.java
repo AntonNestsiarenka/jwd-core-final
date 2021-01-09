@@ -3,6 +3,7 @@ package com.epam.jwd.core_final.service.impl;
 import com.epam.jwd.core_final.context.ApplicationContext;
 import com.epam.jwd.core_final.context.impl.NassaContext;
 import com.epam.jwd.core_final.criteria.Criteria;
+import com.epam.jwd.core_final.criteria.SpaceshipCriteria;
 import com.epam.jwd.core_final.domain.FlightMission;
 import com.epam.jwd.core_final.domain.Spaceship;
 import com.epam.jwd.core_final.exception.AssigningEntityOnMissionException;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SpaceshipServiceImpl implements SpaceshipService {
 
@@ -37,14 +40,18 @@ public class SpaceshipServiceImpl implements SpaceshipService {
 
     @Override
     public List<Spaceship> findAllSpaceshipsByCriteria(Criteria<? extends Spaceship> criteria) {
-        // will be implemented later
-        return null;
+        SpaceshipCriteria spaceshipCriteria = (SpaceshipCriteria) criteria;
+        List<Spaceship> allSpaceships = findAllSpaceships();
+        Stream<Spaceship> stream = filterByCriteria(allSpaceships, spaceshipCriteria);
+        return stream.collect(Collectors.toList());
     }
 
     @Override
     public Optional<Spaceship> findSpaceshipByCriteria(Criteria<? extends Spaceship> criteria) {
-        // will be implemented later
-        return Optional.empty();
+        SpaceshipCriteria spaceshipCriteria = (SpaceshipCriteria) criteria;
+        List<Spaceship> allSpaceships = findAllSpaceships();
+        Stream<Spaceship> stream = filterByCriteria(allSpaceships, spaceshipCriteria);
+        return stream.findFirst();
     }
 
     @Override
@@ -77,5 +84,45 @@ public class SpaceshipServiceImpl implements SpaceshipService {
     private Spaceship saveSpaceship(Spaceship spaceship) {
         applicationContext.retrieveBaseEntityList(Spaceship.class).add(spaceship);
         return spaceship;
+    }
+
+    private Stream<Spaceship> filterByCriteria(List<Spaceship> allSpaceships, SpaceshipCriteria spaceshipCriteria) {
+        Stream<Spaceship> stream = allSpaceships.stream();
+        if (spaceshipCriteria.getWhereId() != null) {
+            stream = stream.filter(spaceship -> spaceship.getId().equals(spaceshipCriteria.getWhereId()));
+        }
+        if (spaceshipCriteria.getWhereName() != null) {
+            stream = stream.filter(spaceship -> spaceship.getName()
+                    .equalsIgnoreCase(spaceshipCriteria.getWhereName()));
+        }
+        if (spaceshipCriteria.getWhereRoleExistInCapacity() != null) {
+            stream = stream.filter(spaceship -> spaceship.getCapacityByRole()
+                    .containsKey(spaceshipCriteria.getWhereRoleExistInCapacity()));
+        }
+        if (spaceshipCriteria.getWhereLesserCountOfRole() != null
+                && spaceshipCriteria.getWhereRoleExistInCapacity() != null) {
+            stream = stream.filter(spaceship -> spaceship
+                    .getCapacityByRole().get(spaceshipCriteria.getWhereRoleExistInCapacity())
+                    < spaceshipCriteria.getWhereLesserCountOfRole());
+        }
+        if (spaceshipCriteria.getWhereGreaterCountOfRole() != null
+                && spaceshipCriteria.getWhereRoleExistInCapacity() != null) {
+            stream = stream.filter(spaceship -> spaceship
+                    .getCapacityByRole().get(spaceshipCriteria.getWhereRoleExistInCapacity())
+                    > spaceshipCriteria.getWhereGreaterCountOfRole());
+        }
+        if (spaceshipCriteria.getWhereLesserFlightDistance() != null) {
+            stream = stream.filter(spaceship -> spaceship.getFlightDistance()
+                    < spaceshipCriteria.getWhereLesserFlightDistance());
+        }
+        if (spaceshipCriteria.getWhereGreaterFlightDistance() != null) {
+            stream = stream.filter(spaceship -> spaceship.getFlightDistance()
+                    > spaceshipCriteria.getWhereGreaterFlightDistance());
+        }
+        if (spaceshipCriteria.getWhichReadyForNextMission() != null) {
+            stream = stream.filter(spaceship -> spaceship.getReadyForNextMission()
+                    .equals(spaceshipCriteria.getWhichReadyForNextMission()));
+        }
+        return stream;
     }
 }
