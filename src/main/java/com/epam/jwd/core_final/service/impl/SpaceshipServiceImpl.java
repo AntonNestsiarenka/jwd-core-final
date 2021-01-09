@@ -49,8 +49,7 @@ public class SpaceshipServiceImpl implements SpaceshipService {
 
     @Override
     public Spaceship updateSpaceshipDetails(Spaceship spaceship) {
-        // ???
-        return null;
+        return spaceship;
     }
 
     @Override

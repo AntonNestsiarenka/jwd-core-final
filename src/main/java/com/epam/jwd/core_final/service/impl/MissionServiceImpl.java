@@ -46,8 +46,7 @@ public class MissionServiceImpl implements MissionService {
 
     @Override
     public FlightMission updateSpaceshipDetails(FlightMission flightMission) {
-        // ???
-        return null;
+        return flightMission;
     }
 
     @Override

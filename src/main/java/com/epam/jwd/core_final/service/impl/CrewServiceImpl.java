@@ -2,6 +2,7 @@ package com.epam.jwd.core_final.service.impl;
 
 import com.epam.jwd.core_final.context.ApplicationContext;
 import com.epam.jwd.core_final.context.impl.NassaContext;
+import com.epam.jwd.core_final.criteria.CrewMemberCriteria;
 import com.epam.jwd.core_final.criteria.Criteria;
 import com.epam.jwd.core_final.domain.CrewMember;
 import com.epam.jwd.core_final.domain.FlightMission;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CrewServiceImpl implements CrewService {
 
@@ -37,20 +40,23 @@ public class CrewServiceImpl implements CrewService {
 
     @Override
     public List<CrewMember> findAllCrewMembersByCriteria(Criteria<? extends CrewMember> criteria) {
-        // will be implemented later
-        return null;
+        CrewMemberCriteria crewMemberCriteria = (CrewMemberCriteria) criteria;
+        List<CrewMember> allCrewMembers = findAllCrewMembers();
+        Stream<CrewMember> filteredStream = filterByCriteria(allCrewMembers, crewMemberCriteria);
+        return filteredStream.collect(Collectors.toList());
     }
 
     @Override
     public Optional<CrewMember> findCrewMemberByCriteria(Criteria<? extends CrewMember> criteria) {
-        // will be implemented later
-        return Optional.empty();
+        CrewMemberCriteria crewMemberCriteria = (CrewMemberCriteria) criteria;
+        List<CrewMember> allCrewMembers = findAllCrewMembers();
+        Stream<CrewMember> filteredStream = filterByCriteria(allCrewMembers, crewMemberCriteria);
+        return filteredStream.findFirst();
     }
 
     @Override
     public CrewMember updateCrewMemberDetails(CrewMember crewMember) {
-        // ???
-        return null;
+        return crewMember;
     }
 
     @Override
@@ -78,5 +84,28 @@ public class CrewServiceImpl implements CrewService {
     private CrewMember saveCrewMember(CrewMember crewMember) {
         applicationContext.retrieveBaseEntityList(CrewMember.class).add(crewMember);
         return crewMember;
+    }
+
+    private Stream<CrewMember> filterByCriteria(List<CrewMember> allCrewMembers,
+                                                CrewMemberCriteria crewMemberCriteria) {
+        Stream<CrewMember> stream = allCrewMembers.stream();
+        if (crewMemberCriteria.getWhereId() != null) {
+            stream = stream.filter(crewMember -> crewMember.getId().equals(crewMemberCriteria.getWhereId()));
+        }
+        if (crewMemberCriteria.getWhereName() != null) {
+            stream = stream.filter(crewMember -> crewMember.getName()
+                    .equalsIgnoreCase(crewMemberCriteria.getWhereName()));
+        }
+        if (crewMemberCriteria.getWhereMemberRole() != null) {
+            stream = stream.filter(crewMember -> crewMember.getMemberRole() == crewMemberCriteria.getWhereMemberRole());
+        }
+        if (crewMemberCriteria.getWhereMemberRank() != null) {
+            stream = stream.filter(crewMember -> crewMember.getMemberRank() == crewMemberCriteria.getWhereMemberRank());
+        }
+        if (crewMemberCriteria.getWhichReadyForNextMission() != null) {
+            stream = stream.filter(crewMember -> crewMember.getReadyForNextMissions()
+                    .equals(crewMemberCriteria.getWhichReadyForNextMission()));
+        }
+        return stream;
     }
 }
