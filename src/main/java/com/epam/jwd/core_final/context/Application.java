@@ -16,6 +16,6 @@ public interface Application {
         final NassaContext nassaContext = NassaContext.createInstance();
 
         nassaContext.init();
-        return applicationContextSupplier::get;
+        return applicationMenu;
     }
 }

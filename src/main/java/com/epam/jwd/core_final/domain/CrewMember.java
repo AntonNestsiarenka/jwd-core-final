@@ -14,7 +14,7 @@ public class CrewMember extends AbstractBaseEntity {
     private static Long idUnique = 0L;
 
     private final Role memberRole;
-    private final Rank memberRank;
+    private Rank memberRank;
     private Boolean isReadyForNextMissions;
 
     public CrewMember(String name, Role memberRole, Rank memberRank) {
@@ -30,6 +30,10 @@ public class CrewMember extends AbstractBaseEntity {
 
     public Rank getMemberRank() {
         return memberRank;
+    }
+
+    public void setMemberRank(Rank memberRank) {
+        this.memberRank = memberRank;
     }
 
     public Boolean getReadyForNextMissions() {
