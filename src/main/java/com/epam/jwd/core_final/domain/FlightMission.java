@@ -1,5 +1,12 @@
 package com.epam.jwd.core_final.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +26,11 @@ import java.util.Objects;
 public class FlightMission extends AbstractBaseEntity {
     // todo
     private static Long idUnique = 0L;
-
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime startDate;
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime endDate;
     private final Long distance;
     private Spaceship assignedSpaceship;
@@ -116,5 +126,12 @@ public class FlightMission extends AbstractBaseEntity {
                 ", assignedCrew=" + assignedCrew +
                 ", missionResult=" + missionResult +
                 '}';
+    }
+
+    public String convertToJson() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper.writeValueAsString(this);
     }
 }

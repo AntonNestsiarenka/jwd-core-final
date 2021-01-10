@@ -58,6 +58,10 @@ public class NassaContext implements ApplicationContext {
         return instance;
     }
 
+    public static ApplicationProperties getApplicationProperties() {
+        return APPLICATION_PROPERTIES;
+    }
+
     @Override
     public <T extends BaseEntity> Collection<T> retrieveBaseEntityList(Class<T> tClass) {
         if (tClass == CrewMember.class) {
