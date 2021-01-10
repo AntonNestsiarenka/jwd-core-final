@@ -3,12 +3,15 @@ package com.epam.jwd.core_final.service.impl;
 import com.epam.jwd.core_final.context.ApplicationContext;
 import com.epam.jwd.core_final.context.impl.NassaContext;
 import com.epam.jwd.core_final.criteria.Criteria;
+import com.epam.jwd.core_final.criteria.FlightMissionCriteria;
 import com.epam.jwd.core_final.domain.FlightMission;
 import com.epam.jwd.core_final.exception.NonUniqueEntityNameException;
 import com.epam.jwd.core_final.service.MissionService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MissionServiceImpl implements MissionService {
 
@@ -34,14 +37,18 @@ public class MissionServiceImpl implements MissionService {
 
     @Override
     public List<FlightMission> findAllMissionsByCriteria(Criteria<? extends FlightMission> criteria) {
-        // will be implemented later
-        return null;
+        FlightMissionCriteria flightMissionCriteria = (FlightMissionCriteria) criteria;
+        List<FlightMission> allFlightMissions = findAllMissions();
+        Stream<FlightMission> filteredStream = filterByCriteria(allFlightMissions, flightMissionCriteria);
+        return filteredStream.collect(Collectors.toList());
     }
 
     @Override
     public Optional<FlightMission> findMissionByCriteria(Criteria<? extends FlightMission> criteria) {
-        // will be implemented later
-        return Optional.empty();
+        FlightMissionCriteria flightMissionCriteria = (FlightMissionCriteria) criteria;
+        List<FlightMission> allFlightMissions = findAllMissions();
+        Stream<FlightMission> filteredStream = filterByCriteria(allFlightMissions, flightMissionCriteria);
+        return filteredStream.findFirst();
     }
 
     @Override
@@ -63,5 +70,54 @@ public class MissionServiceImpl implements MissionService {
     private FlightMission saveFlightMission(FlightMission flightMission) {
         applicationContext.retrieveBaseEntityList(FlightMission.class).add(flightMission);
         return flightMission;
+    }
+
+    private Stream<FlightMission> filterByCriteria(List<FlightMission> allFlightMissions,
+                                                   FlightMissionCriteria flightMissionCriteria) {
+        Stream<FlightMission> stream = allFlightMissions.stream();
+        if (flightMissionCriteria.getWhereId() != null) {
+            stream = stream.filter(flightMission -> flightMission.getId().equals(flightMissionCriteria.getWhereId()));
+        }
+        if (flightMissionCriteria.getWhereName() != null) {
+            stream = stream.filter(flightMission -> flightMission.getName()
+                    .equalsIgnoreCase(flightMissionCriteria.getWhereName()));
+        }
+        if (flightMissionCriteria.getWhereBeforeStartDate() != null) {
+            stream = stream.filter(flightMission -> flightMission.getStartDate()
+                    .isBefore(flightMissionCriteria.getWhereBeforeStartDate()));
+        }
+        if (flightMissionCriteria.getWhereAfterStartDate() != null) {
+            stream = stream.filter(flightMission -> flightMission.getStartDate()
+                    .isAfter(flightMissionCriteria.getWhereAfterStartDate()));
+        }
+        if (flightMissionCriteria.getWhereBeforeEndDate() != null) {
+            stream = stream.filter(flightMission -> flightMission.getEndDate()
+                    .isBefore(flightMissionCriteria.getWhereBeforeEndDate()));
+        }
+        if (flightMissionCriteria.getWhereAfterEndDate() != null) {
+            stream = stream.filter(flightMission -> flightMission.getEndDate()
+                    .isAfter(flightMissionCriteria.getWhereAfterEndDate()));
+        }
+        if (flightMissionCriteria.getWhereLesserDistance() != null) {
+            stream = stream.filter(flightMission -> flightMission.getDistance()
+                    < flightMissionCriteria.getWhereLesserDistance());
+        }
+        if (flightMissionCriteria.getWhereGreaterDistance() != null) {
+            stream = stream.filter(flightMission -> flightMission.getDistance()
+                    > flightMissionCriteria.getWhereGreaterDistance());
+        }
+        stream = (flightMissionCriteria.getWhereAssignedSpaceship() == null)
+                ? stream.filter(flightMission -> flightMission.getAssignedSpaceship() == null)
+                : stream.filter(flightMission -> flightMission.getAssignedSpaceship()
+                .equals(flightMissionCriteria.getWhereAssignedSpaceship()));
+        stream = (flightMissionCriteria.getWhereAssignedCrews() == null)
+                ? stream.filter(flightMission -> flightMission.getAssignedCrew() == null)
+                : stream.filter(flightMission -> flightMission.getAssignedCrew()
+                .equals(flightMissionCriteria.getWhereAssignedCrews()));
+        if (flightMissionCriteria.getWhereMissionResult() != null) {
+            stream = stream.filter(flightMission -> flightMission.getMissionResult()
+                    == flightMissionCriteria.getWhereMissionResult());
+        }
+        return stream;
     }
 }

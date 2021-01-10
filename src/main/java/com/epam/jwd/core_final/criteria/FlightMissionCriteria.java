@@ -5,6 +5,7 @@ import com.epam.jwd.core_final.domain.FlightMission;
 import com.epam.jwd.core_final.domain.MissionResult;
 import com.epam.jwd.core_final.domain.Spaceship;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Should be a builder for {@link com.epam.jwd.core_final.domain.FlightMission} fields
@@ -18,13 +19,13 @@ public class FlightMissionCriteria extends Criteria<FlightMission> {
     private final Long whereLesserDistance;
     private final Long whereGreaterDistance;
     private final Spaceship whereAssignedSpaceship;
-    private final CrewMember whereAssignedCrew;
+    private final List<CrewMember> whereAssignedCrews;
     private final MissionResult whereMissionResult;
 
     private FlightMissionCriteria(Long whereId, String whereName, LocalDateTime whereBeforeStartDate,
                                   LocalDateTime whereAfterStartDate, LocalDateTime whereBeforeEndDate,
                                   LocalDateTime whereAfterEndDate, Long whereLesserDistance, Long whereGreaterDistance,
-                                  Spaceship whereAssignedSpaceship, CrewMember whereAssignedCrew,
+                                  Spaceship whereAssignedSpaceship, List<CrewMember> whereAssignedCrews,
                                   MissionResult whereMissionResult) {
         super(whereId, whereName);
         this.whereBeforeStartDate = whereBeforeStartDate;
@@ -34,7 +35,7 @@ public class FlightMissionCriteria extends Criteria<FlightMission> {
         this.whereLesserDistance = whereLesserDistance;
         this.whereGreaterDistance = whereGreaterDistance;
         this.whereAssignedSpaceship = whereAssignedSpaceship;
-        this.whereAssignedCrew = whereAssignedCrew;
+        this.whereAssignedCrews = whereAssignedCrews;
         this.whereMissionResult = whereMissionResult;
     }
 
@@ -66,8 +67,8 @@ public class FlightMissionCriteria extends Criteria<FlightMission> {
         return whereAssignedSpaceship;
     }
 
-    public CrewMember getWhereAssignedCrew() {
-        return whereAssignedCrew;
+    public List<CrewMember> getWhereAssignedCrews() {
+        return whereAssignedCrews;
     }
 
     public MissionResult getWhereMissionResult() {
@@ -89,7 +90,7 @@ public class FlightMissionCriteria extends Criteria<FlightMission> {
         private Long whereLesserDistance;
         private Long whereGreaterDistance;
         private Spaceship whereAssignedSpaceship;
-        private CrewMember whereAssignedCrew;
+        private List<CrewMember> whereAssignedCrews;
         private MissionResult whereMissionResult;
 
         public Builder whereId(Long id) {
@@ -137,8 +138,8 @@ public class FlightMissionCriteria extends Criteria<FlightMission> {
             return this;
         }
 
-        public Builder whereAssignedCrew(CrewMember crewMember) {
-            whereAssignedCrew = crewMember;
+        public Builder whereAssignedCrew(List<CrewMember> assignedCrewMembers) {
+            whereAssignedCrews = assignedCrewMembers;
             return this;
         }
 
@@ -150,7 +151,7 @@ public class FlightMissionCriteria extends Criteria<FlightMission> {
         public FlightMissionCriteria build() {
             return new FlightMissionCriteria(whereId, whereName, whereBeforeStartDate, whereAfterStartDate,
                     whereBeforeEndDate, whereAfterEndDate, whereLesserDistance, whereGreaterDistance,
-                    whereAssignedSpaceship, whereAssignedCrew, whereMissionResult);
+                    whereAssignedSpaceship, whereAssignedCrews, whereMissionResult);
         }
     }
 }
