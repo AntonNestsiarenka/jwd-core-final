@@ -22,4 +22,6 @@ public class ApplicationMenuImpl implements ApplicationMenu {
     public ApplicationContext getApplicationContext() {
         return NassaContext.createInstance();
     }
+
+
 }

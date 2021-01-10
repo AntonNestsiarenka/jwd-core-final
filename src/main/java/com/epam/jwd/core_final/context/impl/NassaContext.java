@@ -129,8 +129,10 @@ public class NassaContext implements ApplicationContext {
         FlightMissionFactory flightMissionFactory = FlightMissionFactory.createInstance();
         String[] missionNames = text.split("\r?\n");
         List<String> listOfMissionNames = Arrays.stream(missionNames).collect(Collectors.toList());
-        List<Spaceship> allSpaceships = new ArrayList<>(spaceships);
-        List<CrewMember> allCrewMembers = new ArrayList<>(crewMembers);
+        List<Spaceship> allSpaceships = spaceships.stream()
+                .filter(Spaceship::getReadyForNextMission).collect(Collectors.toList());
+        List<CrewMember> allCrewMembers = crewMembers.stream()
+                .filter(CrewMember::getReadyForNextMissions).collect(Collectors.toList());
         if (listOfMissionNames.isEmpty() || allSpaceships.isEmpty() || allCrewMembers.isEmpty()) {
             throw new InvalidStateException("Flight mission generation is not possible." +
                     " Mission names or spaceships or crewMembers is unavailable");
@@ -146,8 +148,6 @@ public class NassaContext implements ApplicationContext {
                         listOfMissionNames.size() - 1));
                 FlightMission flightMission = flightMissionFactory.create(missionName,
                         missionStart, missionEnd, distance, MissionResult.PLANNED);
-                flightMission.setAssignedSpaceship(spaceship);
-                spaceship.setReadyForNextMission(false);
 
                 List<CrewMember> assignedCrews = new ArrayList<>();
                 Set<Role> setOfRole = spaceship.getCapacityByRole().keySet();
@@ -158,10 +158,12 @@ public class NassaContext implements ApplicationContext {
                     for (int j = 0; j < spaceship.getCapacityByRole().get(role); j++) {
                         CrewMember assignedCrewMember = filteredCrewMembers.get(randInt(random, 0,
                                 filteredCrewMembers.size() - 1));
-                        assignedCrewMember.setReadyForNextMissions(false);
                         assignedCrews.add(assignedCrewMember);
                     }
                 }
+                flightMission.setAssignedSpaceship(spaceship);
+                spaceship.setReadyForNextMission(false);
+                assignedCrews.forEach(crewMember -> crewMember.setReadyForNextMissions(false));
                 flightMission.setAssignedCrew(assignedCrews);
                 flightMissions.add(flightMission);
                 allCrewMembers.removeAll(assignedCrews);
@@ -210,10 +212,8 @@ public class NassaContext implements ApplicationContext {
         return missionStart.plusSeconds(randLong(random, lowOffset, highOffset));
     }
 
-    private int randInt(Random random, int lowLimit, int highLimit)
-    {
-        if (lowLimit > highLimit)
-        {
+    private int randInt(Random random, int lowLimit, int highLimit) {
+        if (lowLimit > highLimit) {
             int temp = lowLimit;
             lowLimit = highLimit;
             highLimit = temp;
@@ -221,10 +221,8 @@ public class NassaContext implements ApplicationContext {
         return lowLimit + Math.abs(random.nextInt()) % (highLimit - lowLimit + 1);
     }
 
-    private long randLong(Random random, long lowLimit, long highLimit)
-    {
-        if (lowLimit > highLimit)
-        {
+    private long randLong(Random random, long lowLimit, long highLimit) {
+        if (lowLimit > highLimit) {
             long temp = lowLimit;
             lowLimit = highLimit;
             highLimit = temp;
